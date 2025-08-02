@@ -7,8 +7,11 @@ import sys
 def match_pattern(input_line, pattern):
     if len(pattern) == 1:
         return pattern in input_line
-    else:
-        raise RuntimeError(f"Unhandled pattern: {pattern}")
+
+    if pattern == r"\d":
+        return any(c in input_line for c in "0123456789")
+
+    raise RuntimeError(f"Unhandled pattern: {pattern}")
 
 
 def main():
