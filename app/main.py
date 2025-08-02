@@ -1,3 +1,4 @@
+import string
 import sys
 
 # import pyparsing - available if you need it!
@@ -9,7 +10,10 @@ def match_pattern(input_line, pattern):
         return pattern in input_line
 
     if pattern == r"\d":
-        return any(c in input_line for c in "0123456789")
+        return any(c in input_line for c in string.digits)
+
+    if pattern == r"\w":
+        return any(c in input_line for c in string.digits + string.letters)
 
     raise RuntimeError(f"Unhandled pattern: {pattern}")
 
