@@ -13,7 +13,7 @@ def match_pattern(input_line, pattern):
         return any(c in input_line for c in string.digits)
 
     if pattern == r"\w":
-        return any(c in input_line for c in string.digits + string.ascii_letters)
+        return any(c in input_line for c in string.digits + string.ascii_letters + "_")
 
     raise RuntimeError(f"Unhandled pattern: {pattern}")
 
