@@ -15,6 +15,9 @@ def match_pattern(input_line, pattern):
     if pattern == r"\w":
         return any(c in input_line for c in string.digits + string.ascii_letters + "_")
 
+    if pattern.startswith("[") and pattern.endswith("]"):
+        return any(c in input_line for c in pattern[1:-1])
+
     raise RuntimeError(f"Unhandled pattern: {pattern}")
 
 
@@ -28,8 +31,8 @@ def main():
 
     if match_pattern(input_line, pattern):
         exit(0)
-    else:
-        exit(1)
+
+    exit(1)
 
 
 if __name__ == "__main__":
