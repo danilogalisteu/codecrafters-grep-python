@@ -18,7 +18,7 @@ def match_pattern(input_line, pattern):
     if pattern[0] == "[" and pattern[-1] == "]":
         if pattern[1] != "^":
             return any(c in input_line for c in pattern[1:-1])
-        return not all(c in input_line for c in pattern[1:-1])
+        return not all(c in input_line for c in pattern[2:-1])
 
     raise RuntimeError(f"Unhandled pattern: {pattern}")
 
