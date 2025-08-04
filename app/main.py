@@ -29,6 +29,9 @@ def match_here(pattern, input_line):
             input_line.startswith(c) for c in pattern_set
         ), pattern[pattern_end + 1 :], input_line[1:]
 
+    if pattern == "$":
+        return input_line == "", pattern[1:], input_line
+
     if len(pattern) > 0 and len(input_line) > 0:
         return pattern[0] == input_line[0], pattern[1:], input_line[1:]
 
