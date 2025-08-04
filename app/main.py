@@ -43,7 +43,7 @@ def match_pattern(input_line, pattern):
     while i < len(input_line):
         prev_input = input_line[i:]
         prev_pattern = pattern
-        while prev_input and prev_pattern:
+        while prev_pattern:
             is_match, next_pattern, next_input = match_here(prev_pattern, prev_input)
             if not is_match:
                 break
