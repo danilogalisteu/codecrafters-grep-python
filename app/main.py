@@ -36,6 +36,9 @@ def match_here(pattern, input_line):
 
 
 def match_pattern(input_line, pattern):
+    if pattern[0] == "^":
+        return match_here(pattern[1:], input_line)[0]
+
     i = 0
     while i < len(input_line):
         prev_input = input_line[i:]
