@@ -50,6 +50,13 @@ def match_pattern(input_line, pattern):
             is_match, next_pattern, next_input = match_here(prev_pattern, prev_input)
             if not is_match:
                 break
+            if is_match and next_pattern and next_pattern[0] == "+":
+                plus_match = True
+                plus_input = next_input
+                while plus_match:
+                    next_input = plus_input
+                    plus_match, next_pattern, plus_input = match_here(prev_pattern, next_input)
+                next_pattern = next_pattern[1:]
             prev_pattern, prev_input = next_pattern, next_input
         i += 1
         if not prev_input and prev_pattern:
