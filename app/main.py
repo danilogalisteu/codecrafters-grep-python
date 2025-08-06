@@ -10,34 +10,64 @@ def match_deep(input_line, pattern):
         return True
 
     if pattern.startswith(r"\d"):
-        return match_deep(input_line[1:], pattern[2:]) and input_line[0] in string.digits
+        this_match = input_line[0] in string.digits
+        if len(pattern) > 2 and pattern[2] == "+":
+            next_match = match_deep(input_line[1:], pattern[3:])
+            more_match = match_deep(input_line[1:], pattern)
+            return (next_match or more_match) and this_match
+        next_match = match_deep(input_line[1:], pattern[2:])
+        return next_match and this_match
 
     if pattern.startswith(r"\w"):
-        return match_deep(input_line[1:], pattern[2:]) and input_line[0] in string.digits + string.ascii_letters + "_"
+        this_match = input_line[0] in string.digits + string.ascii_letters + "_"
+        if len(pattern) > 2 and pattern[2] == "+":
+            next_match = match_deep(input_line[1:], pattern[3:])
+            more_match = match_deep(input_line[1:], pattern)
+            return (next_match or more_match) and this_match
+        next_match = match_deep(input_line[1:], pattern[2:])
+        return match_deep(input_line[1:], pattern[2:]) and this_match
 
     if pattern.startswith("[^"):
         pattern_end = pattern.find("]")
         if pattern_end == -1:
             raise ValueError("invalid pattern")
         pattern_set = pattern[2:pattern_end]
-        return match_deep(input_line[1:], pattern[pattern_end+1:]) and input_line[0] not in pattern_set
+        this_match = input_line[0] not in pattern_set
+        if len(pattern) > pattern_end+1 and pattern[pattern_end+1] == "+":
+            next_match = match_deep(input_line[1:], pattern[pattern_end+2:])
+            more_match = match_deep(input_line[1:], pattern)
+            return (next_match or more_match) and this_match
+        next_match = match_deep(input_line[1:], pattern[pattern_end+1:])
+        return next_match and this_match
 
     if pattern.startswith("["):
         pattern_end = pattern.find("]")
         if pattern_end == -1:
             raise ValueError("invalid pattern")
         pattern_set = pattern[2:pattern_end]
-        return match_deep(input_line[1:], pattern[pattern_end+1:]) and input_line[0] in pattern_set
+        this_match = input_line[0] in pattern_set
+        if len(pattern) > pattern_end+1 and pattern[pattern_end+1] == "+":
+            next_match = match_deep(input_line[1:], pattern[pattern_end+2:])
+            more_match = match_deep(input_line[1:], pattern)
+            return (next_match or more_match) and this_match
+        next_match = match_deep(input_line[1:], pattern[pattern_end+1:])
+        return next_match and this_match
 
     if pattern.startswith("$"):
         if len(pattern) > 1:
             raise ValueError("invalid pattern")
         return len(input_line) == 0
 
-    if len(input_line) > 0:
-        return match_deep(input_line[1:], pattern[1:]) and pattern[0] == input_line[0]
+    if len(input_line) == 0:
+        return False
 
-    return False
+    this_match = pattern[0] == input_line[0]
+    if len(pattern) > 1 and pattern[1] == "+":
+        next_match = match_deep(input_line[1:], pattern[2:])
+        more_match = match_deep(input_line[1:], pattern)
+        return (next_match or more_match) and this_match
+    next_match = match_deep(input_line[1:], pattern[1:])
+    return next_match and this_match
 
 
 def match_pattern(input_line, pattern):
