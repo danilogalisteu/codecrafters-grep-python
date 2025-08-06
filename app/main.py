@@ -17,6 +17,19 @@ def match_deep(input_line, pattern):
     if len(input_line) == 0:
         return False
 
+    if pattern.startswith("."):
+        this_match = True
+        if len(pattern) > 1:
+            next_match = match_deep(input_line[1:], pattern[2:])
+            if pattern[1] == "+":
+                more_match = match_deep(input_line[1:], pattern)
+                return (next_match or more_match) and this_match
+            if pattern[1] == "?":
+                zero_match = match_deep(input_line, pattern[2:])
+                return zero_match or (next_match and this_match)
+        next_match = match_deep(input_line[1:], pattern[1:])
+        return next_match and this_match
+
     if pattern.startswith(r"\d"):
         this_match = input_line[0] in string.digits
         if len(pattern) > 2:
