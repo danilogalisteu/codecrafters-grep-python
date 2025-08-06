@@ -9,6 +9,9 @@ def match_deep(input_line, pattern):
     if pattern == "":
         return True
 
+    if len(input_line) == 0:
+        return False
+
     if pattern.startswith(r"\d"):
         this_match = input_line[0] in string.digits
         if len(pattern) > 2 and pattern[2] == "+":
@@ -57,9 +60,6 @@ def match_deep(input_line, pattern):
         if len(pattern) > 1:
             raise ValueError("invalid pattern")
         return len(input_line) == 0
-
-    if len(input_line) == 0:
-        return False
 
     this_match = pattern[0] == input_line[0]
     if len(pattern) > 1 and pattern[1] == "+":
