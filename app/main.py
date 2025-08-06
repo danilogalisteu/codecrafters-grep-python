@@ -5,64 +5,51 @@ import sys
 # import lark - available if you need it!
 
 
-def match_here(pattern, input_line):
+def match_deep(input_line, pattern):
+    if pattern == "":
+        return True
+
     if pattern.startswith(r"\d"):
-        return any(input_line[0].startswith(c) for c in string.digits), pattern[2:], input_line[1:]
+        return match_deep(input_line[1:], pattern[2:]) and input_line[0] in string.digits
 
     if pattern.startswith(r"\w"):
-        return any(
-            input_line.startswith(c)
-            for c in string.digits + string.ascii_letters + "_"
-        ), pattern[2:], input_line[1:]
+        return match_deep(input_line[1:], pattern[2:]) and input_line[0] in string.digits + string.ascii_letters + "_"
 
     if pattern.startswith("[^"):
         pattern_end = pattern.find("]")
+        if pattern_end == -1:
+            raise ValueError("invalid pattern")
         pattern_set = pattern[2:pattern_end]
-        return not any(
-            input_line.startswith(c) for c in pattern_set
-        ), pattern[pattern_end + 1 :], input_line[1:]
+        return match_deep(input_line[1:], pattern[pattern_end+1:]) and input_line[0] not in pattern_set
 
     if pattern.startswith("["):
         pattern_end = pattern.find("]")
-        pattern_set = pattern[1:pattern_end]
-        return any(
-            input_line.startswith(c) for c in pattern_set
-        ), pattern[pattern_end + 1 :], input_line[1:]
+        if pattern_end == -1:
+            raise ValueError("invalid pattern")
+        pattern_set = pattern[2:pattern_end]
+        return match_deep(input_line[1:], pattern[pattern_end+1:]) and input_line[0] in pattern_set
 
-    if pattern == "$":
-        return input_line == "", pattern[1:], input_line
+    if pattern.startswith("$"):
+        if len(pattern) > 1:
+            raise ValueError("invalid pattern")
+        return len(input_line) == 0
 
-    if len(pattern) > 0 and len(input_line) > 0:
-        return pattern[0] == input_line[0], pattern[1:], input_line[1:]
+    if len(input_line) > 0:
+        return match_deep(input_line[1:], pattern[1:]) and pattern[0] == input_line[0]
 
-    return len(pattern) == 0, pattern, input_line
+    return False
 
 
 def match_pattern(input_line, pattern):
     if pattern[0] == "^":
-        return match_here(pattern[1:], input_line)[0]
+        return match_deep(input_line, pattern[1:])
 
     i = 0
     while i < len(input_line):
-        prev_input = input_line[i:]
-        prev_pattern = pattern
-        while prev_pattern:
-            is_match, next_pattern, next_input = match_here(prev_pattern, prev_input)
-            if not is_match:
-                break
-            if is_match and next_pattern and next_pattern[0] == "+":
-                plus_match = True
-                plus_input = next_input
-                while plus_match:
-                    next_input = plus_input
-                    plus_match, next_pattern, plus_input = match_here(prev_pattern, next_input)
-                next_pattern = next_pattern[1:]
-            prev_pattern, prev_input = next_pattern, next_input
-        i += 1
-        if not prev_input and prev_pattern:
-            continue
-        if is_match:
+        if match_deep(input_line[i:], pattern):
             return True
+        i += 1
+
     return False
 
 
