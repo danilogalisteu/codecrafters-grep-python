@@ -77,7 +77,7 @@ def match_deep(input_line, pattern):
         pattern_end = pattern.find("]")
         if pattern_end == -1:
             raise ValueError("invalid pattern")
-        pattern_set = pattern[2:pattern_end]
+        pattern_set = pattern[1:pattern_end]
         this_match = input_line[0] in pattern_set
         if len(pattern) > pattern_end + 1:
             next_match = match_deep(input_line[1:], pattern[pattern_end + 2 :])
