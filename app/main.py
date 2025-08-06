@@ -9,6 +9,11 @@ def match_deep(input_line, pattern):
     if pattern == "":
         return True
 
+    if pattern.startswith("$"):
+        if len(pattern) > 1:
+            raise ValueError("invalid pattern")
+        return len(input_line) == 0
+
     if len(input_line) == 0:
         return False
 
@@ -55,11 +60,6 @@ def match_deep(input_line, pattern):
             return (next_match or more_match) and this_match
         next_match = match_deep(input_line[1:], pattern[pattern_end+1:])
         return next_match and this_match
-
-    if pattern.startswith("$"):
-        if len(pattern) > 1:
-            raise ValueError("invalid pattern")
-        return len(input_line) == 0
 
     this_match = pattern[0] == input_line[0]
     if len(pattern) > 1 and pattern[1] == "+":
