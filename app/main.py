@@ -20,11 +20,12 @@ def match_deep(input_line, pattern):
     if pattern.startswith("."):
         this_match = True
         if len(pattern) > 1:
-            next_match = match_deep(input_line[1:], pattern[2:])
             if pattern[1] == "+":
+                next_match = match_deep(input_line[1:], pattern[2:])
                 more_match = match_deep(input_line[1:], pattern)
                 return (next_match or more_match) and this_match
             if pattern[1] == "?":
+                next_match = match_deep(input_line[1:], pattern[2:])
                 zero_match = match_deep(input_line, pattern[2:])
                 return zero_match or (next_match and this_match)
         next_match = match_deep(input_line[1:], pattern[1:])
@@ -33,11 +34,12 @@ def match_deep(input_line, pattern):
     if pattern.startswith(r"\d"):
         this_match = input_line[0] in string.digits
         if len(pattern) > 2:
-            next_match = match_deep(input_line[1:], pattern[3:])
             if pattern[2] == "+":
+                next_match = match_deep(input_line[1:], pattern[3:])
                 more_match = match_deep(input_line[1:], pattern)
                 return (next_match or more_match) and this_match
             if pattern[2] == "?":
+                next_match = match_deep(input_line[1:], pattern[3:])
                 zero_match = match_deep(input_line, pattern[3:])
                 return zero_match or (next_match and this_match)
         next_match = match_deep(input_line[1:], pattern[2:])
@@ -46,11 +48,12 @@ def match_deep(input_line, pattern):
     if pattern.startswith(r"\w"):
         this_match = input_line[0] in string.digits + string.ascii_letters + "_"
         if len(pattern) > 2:
-            next_match = match_deep(input_line[1:], pattern[3:])
             if pattern[2] == "+":
+                next_match = match_deep(input_line[1:], pattern[3:])
                 more_match = match_deep(input_line[1:], pattern)
                 return (next_match or more_match) and this_match
             if pattern[2] == "?":
+                next_match = match_deep(input_line[1:], pattern[3:])
                 zero_match = match_deep(input_line, pattern[3:])
                 return zero_match or (next_match and this_match)
         next_match = match_deep(input_line[1:], pattern[2:])
@@ -63,11 +66,12 @@ def match_deep(input_line, pattern):
         pattern_set = pattern[2:pattern_end]
         this_match = input_line[0] not in pattern_set
         if len(pattern) > pattern_end + 1:
-            next_match = match_deep(input_line[1:], pattern[pattern_end + 2 :])
             if pattern[pattern_end + 1] == "+":
+                next_match = match_deep(input_line[1:], pattern[pattern_end + 2 :])
                 more_match = match_deep(input_line[1:], pattern)
                 return (next_match or more_match) and this_match
             if pattern[pattern_end + 1] == "?":
+                next_match = match_deep(input_line[1:], pattern[pattern_end + 2 :])
                 zero_match = match_deep(input_line, pattern[pattern_end + 2 :])
                 return zero_match or (next_match and this_match)
         next_match = match_deep(input_line[1:], pattern[pattern_end + 1 :])
@@ -80,11 +84,12 @@ def match_deep(input_line, pattern):
         pattern_set = pattern[1:pattern_end]
         this_match = input_line[0] in pattern_set
         if len(pattern) > pattern_end + 1:
-            next_match = match_deep(input_line[1:], pattern[pattern_end + 2 :])
             if pattern[pattern_end + 1] == "+":
+                next_match = match_deep(input_line[1:], pattern[pattern_end + 2 :])
                 more_match = match_deep(input_line[1:], pattern)
                 return (next_match or more_match) and this_match
             if pattern[pattern_end + 1] == "?":
+                next_match = match_deep(input_line[1:], pattern[pattern_end + 2 :])
                 zero_match = match_deep(input_line, pattern[pattern_end + 2 :])
                 return zero_match or (next_match and this_match)
         next_match = match_deep(input_line[1:], pattern[pattern_end + 1 :])
@@ -92,11 +97,12 @@ def match_deep(input_line, pattern):
 
     this_match = pattern[0] == input_line[0]
     if len(pattern) > 1:
-        next_match = match_deep(input_line[1:], pattern[2:])
         if pattern[1] == "+":
+            next_match = match_deep(input_line[1:], pattern[2:])
             more_match = match_deep(input_line[1:], pattern)
             return (next_match or more_match) and this_match
         if pattern[1] == "?":
+            next_match = match_deep(input_line[1:], pattern[2:])
             zero_match = match_deep(input_line, pattern[2:])
             return zero_match or (next_match and this_match)
     next_match = match_deep(input_line[1:], pattern[1:])
