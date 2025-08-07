@@ -5,7 +5,19 @@ import sys
 # import lark - available if you need it!
 
 
+def match_group(input_line: str, pattern: str) -> int:
+    print(f"match_group ('{input_line}', '{pattern}')")
+    count = 0
+    while count < len(input_line):
+        if match_deep(input_line[:count+1], pattern):
+            print(f"match_group return {count+1}")
+            return count + 1
+        count += 1
+    return 0
+
+
 def match_deep(input_line: str, pattern: str) -> bool:
+    print(f"match_deep ('{input_line}', '{pattern}')")
     if pattern == "":
         return True
 
@@ -93,6 +105,37 @@ def match_deep(input_line: str, pattern: str) -> bool:
                 zero_match = match_deep(input_line, pattern[pattern_end + 2 :])
                 return zero_match or (next_match and this_match)
         next_match = match_deep(input_line[1:], pattern[pattern_end + 1 :])
+        return next_match and this_match
+
+
+    if pattern.startswith("("):
+        pattern_end = pattern.find(")")
+        if pattern_end == -1:
+            raise ValueError("invalid pattern")
+        group_start = 1
+        while True:
+            next_start = pattern.find("(", group_start, pattern_end)
+            if next_start == -1:
+                break
+            pattern_end = pattern.find(")", pattern_end + 1)
+            if pattern_end == -1:
+                raise ValueError("invalid pattern")
+            group_start = next_start + 1
+
+        pattern_set = pattern[1:pattern_end]
+        this_count = match_group(input_line, pattern_set)
+        this_match = this_count > 0
+        if len(pattern) > pattern_end + 1:
+            if pattern[pattern_end + 1] == "+":
+                next_match = match_deep(input_line[this_count:], pattern[pattern_end + 2 :])
+                more_count = match_group(input_line[this_count:], pattern_set)
+                more_match = more_count > 0
+                return (next_match or more_match) and this_match
+            if pattern[pattern_end + 1] == "?":
+                next_match = match_deep(input_line[this_count:], pattern[pattern_end + 2 :])
+                zero_match = match_deep(input_line, pattern[pattern_end + 2 :])
+                return zero_match or (next_match and this_match)
+        next_match = match_deep(input_line[this_count:], pattern[pattern_end + 1 :])
         return next_match and this_match
 
     this_match = pattern[0] == input_line[0]
