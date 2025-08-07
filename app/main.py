@@ -5,7 +5,7 @@ import sys
 # import lark - available if you need it!
 
 
-def match_deep(input_line, pattern):
+def match_deep(input_line: str, pattern: str) -> bool:
     if pattern == "":
         return True
 
@@ -109,7 +109,7 @@ def match_deep(input_line, pattern):
     return next_match and this_match
 
 
-def match_pattern(input_line, pattern):
+def match_pattern(input_line: str, pattern: str) -> bool:
     if pattern[0] == "^":
         return match_deep(input_line, pattern[1:])
 
@@ -122,7 +122,7 @@ def match_pattern(input_line, pattern):
     return False
 
 
-def main():
+def main() -> None:
     pattern = sys.argv[2]
     input_line = sys.stdin.read()
 
