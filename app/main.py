@@ -9,7 +9,6 @@ def match_group(input_line: str, pattern: str) -> int:
     count = 0
     while count < len(input_line):
         if match_deep(input_line[:count+1], pattern):
-            print(f"match_group return {count+1}")
             return count + 1
         count += 1
     return 0
