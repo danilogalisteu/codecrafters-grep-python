@@ -34,11 +34,11 @@ def match_deep(input_line: str, pattern: str) -> bool:
                 next_match = len(input_line) > 0 and match_deep(input_line[1:], pattern[2:])
                 zero_match = match_deep(input_line, pattern[2:])
                 return zero_match or (next_match and this_match)
-        next_match = match_deep(input_line[1:], pattern[1:])
+        next_match = len(input_line) > 0 and match_deep(input_line[1:], pattern[1:])
         return next_match and this_match
 
     if pattern.startswith(r"\d"):
-        this_match = input_line[0] in string.digits
+        this_match = len(input_line) > 0 and input_line[0] in string.digits
         if len(pattern) > 2:
             if pattern[2] == "+" and len(input_line) > 0:
                 next_match = match_deep(input_line[1:], pattern[3:])
@@ -48,11 +48,11 @@ def match_deep(input_line: str, pattern: str) -> bool:
                 next_match = len(input_line) > 0 and match_deep(input_line[1:], pattern[3:])
                 zero_match = match_deep(input_line, pattern[3:])
                 return zero_match or (next_match and this_match)
-        next_match = match_deep(input_line[1:], pattern[2:])
+        next_match = len(input_line) > 0 and match_deep(input_line[1:], pattern[2:])
         return next_match and this_match
 
     if pattern.startswith(r"\w"):
-        this_match = input_line[0] in string.digits + string.ascii_letters + "_"
+        this_match = len(input_line) > 0 and input_line[0] in string.digits + string.ascii_letters + "_"
         if len(pattern) > 2:
             if pattern[2] == "+" and len(input_line) > 0:
                 next_match = match_deep(input_line[1:], pattern[3:])
@@ -62,15 +62,15 @@ def match_deep(input_line: str, pattern: str) -> bool:
                 next_match = len(input_line) > 0 and match_deep(input_line[1:], pattern[3:])
                 zero_match = match_deep(input_line, pattern[3:])
                 return zero_match or (next_match and this_match)
-        next_match = match_deep(input_line[1:], pattern[2:])
-        return match_deep(input_line[1:], pattern[2:]) and this_match
+        next_match = len(input_line) > 0 and match_deep(input_line[1:], pattern[2:])
+        return next_match and this_match
 
     if pattern.startswith("[^"):
         pattern_end = pattern.find("]")
         if pattern_end == -1:
             raise ValueError("invalid pattern")
         pattern_set = pattern[2:pattern_end]
-        this_match = input_line[0] not in pattern_set
+        this_match = len(input_line) > 0 and input_line[0] not in pattern_set
         if len(pattern) > pattern_end + 1:
             if pattern[pattern_end + 1] == "+" and len(input_line) > 0:
                 next_match = match_deep(input_line[1:], pattern[pattern_end + 2 :])
@@ -80,7 +80,7 @@ def match_deep(input_line: str, pattern: str) -> bool:
                 next_match = len(input_line) > 0 and match_deep(input_line[1:], pattern[pattern_end + 2 :])
                 zero_match = match_deep(input_line, pattern[pattern_end + 2 :])
                 return zero_match or (next_match and this_match)
-        next_match = match_deep(input_line[1:], pattern[pattern_end + 1 :])
+        next_match = len(input_line) > 0 and match_deep(input_line[1:], pattern[pattern_end + 1 :])
         return next_match and this_match
 
     if pattern.startswith("["):
@@ -88,7 +88,7 @@ def match_deep(input_line: str, pattern: str) -> bool:
         if pattern_end == -1:
             raise ValueError("invalid pattern")
         pattern_set = pattern[1:pattern_end]
-        this_match = input_line[0] in pattern_set
+        this_match = len(input_line) > 0 and input_line[0] in pattern_set
         if len(pattern) > pattern_end + 1:
             if pattern[pattern_end + 1] == "+" and len(input_line) > 0:
                 next_match = match_deep(input_line[1:], pattern[pattern_end + 2 :])
@@ -98,7 +98,7 @@ def match_deep(input_line: str, pattern: str) -> bool:
                 next_match = len(input_line) > 0 and match_deep(input_line[1:], pattern[pattern_end + 2 :])
                 zero_match = match_deep(input_line, pattern[pattern_end + 2 :])
                 return zero_match or (next_match and this_match)
-        next_match = match_deep(input_line[1:], pattern[pattern_end + 1 :])
+        next_match = len(input_line) > 0 and match_deep(input_line[1:], pattern[pattern_end + 1 :])
         return next_match and this_match
 
 
@@ -129,7 +129,7 @@ def match_deep(input_line: str, pattern: str) -> bool:
                 next_match = len(input_line) >= this_count and match_deep(input_line[this_count:], pattern[pattern_end + 2 :])
                 zero_match = match_deep(input_line, pattern[pattern_end + 2 :])
                 return zero_match or (next_match and this_match)
-        next_match = match_deep(input_line[this_count:], pattern[pattern_end + 1 :])
+        next_match = len(input_line) >= this_count and match_deep(input_line[this_count:], pattern[pattern_end + 1 :])
         return next_match and this_match
 
     this_match = len(input_line) > 0 and pattern[0] == input_line[0]
@@ -142,7 +142,7 @@ def match_deep(input_line: str, pattern: str) -> bool:
             next_match = len(input_line) > 0 and match_deep(input_line[1:], pattern[2:])
             zero_match = match_deep(input_line, pattern[2:])
             return zero_match or (next_match and this_match)
-    next_match = match_deep(input_line[1:], pattern[1:])
+    next_match = len(input_line) > 0 and match_deep(input_line[1:], pattern[1:])
     return next_match and this_match
 
 
