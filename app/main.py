@@ -121,13 +121,13 @@ def match_deep(input_line: str, pattern: str) -> bool:
         this_count = match_group(input_line, pattern_set)
         this_match = this_count > 0
         if len(pattern) > pattern_end + 1:
-            if pattern[pattern_end + 1] == "+" and len(input_line) > this_count:
+            if pattern[pattern_end + 1] == "+" and len(input_line) >= this_count:
                 next_match = match_deep(input_line[this_count:], pattern[pattern_end + 2 :])
                 more_count = match_group(input_line[this_count:], pattern_set)
                 more_match = more_count > 0
                 return (next_match or more_match) and this_match
             if pattern[pattern_end + 1] == "?":
-                next_match = len(input_line) > this_count and match_deep(input_line[this_count:], pattern[pattern_end + 2 :])
+                next_match = len(input_line) >= this_count and match_deep(input_line[this_count:], pattern[pattern_end + 2 :])
                 zero_match = match_deep(input_line, pattern[pattern_end + 2 :])
                 return zero_match or (next_match and this_match)
         next_match = match_deep(input_line[this_count:], pattern[pattern_end + 1 :])
