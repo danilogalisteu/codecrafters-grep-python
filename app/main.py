@@ -128,6 +128,21 @@ def match_group(input_line: str, pattern: str) -> bool:
     return next_match and this_match
 
 
+def match_single(input_line: str, pattern: str) -> bool:
+    this_match = len(input_line) > 0 and pattern[0] == input_line[0]
+    if len(pattern) > 1:
+        if pattern[1] == "+" and len(input_line) > 0:
+            next_match = match_deep(input_line[1:], pattern[2:])
+            more_match = match_deep(input_line[1:], pattern)
+            return (next_match or more_match) and this_match
+        if pattern[1] == "?":
+            next_match = len(input_line) > 0 and match_deep(input_line[1:], pattern[2:])
+            zero_match = match_deep(input_line, pattern[2:])
+            return zero_match or (next_match and this_match)
+    next_match = len(input_line) > 0 and match_deep(input_line[1:], pattern[1:])
+    return next_match and this_match
+
+
 def match_deep(input_line: str, pattern: str) -> bool:
     if pattern == "":
         return True
@@ -155,18 +170,7 @@ def match_deep(input_line: str, pattern: str) -> bool:
     if pattern.startswith("("):
         return match_group(input_line, pattern)
 
-    this_match = len(input_line) > 0 and pattern[0] == input_line[0]
-    if len(pattern) > 1:
-        if pattern[1] == "+" and len(input_line) > 0:
-            next_match = match_deep(input_line[1:], pattern[2:])
-            more_match = match_deep(input_line[1:], pattern)
-            return (next_match or more_match) and this_match
-        if pattern[1] == "?":
-            next_match = len(input_line) > 0 and match_deep(input_line[1:], pattern[2:])
-            zero_match = match_deep(input_line, pattern[2:])
-            return zero_match or (next_match and this_match)
-    next_match = len(input_line) > 0 and match_deep(input_line[1:], pattern[1:])
-    return next_match and this_match
+    return match_single(input_line, pattern)
 
 
 def match_pattern(input_line: str, pattern: str) -> bool:
