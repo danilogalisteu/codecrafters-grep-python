@@ -5,7 +5,7 @@ import sys
 # import lark - available if you need it!
 
 
-def match_group(input_line: str, pattern: str) -> int:
+def match_count(input_line: str, pattern: str) -> int:
     count = 0
     while count < len(input_line):
         if match_deep(input_line[:count+1], pattern):
@@ -117,12 +117,12 @@ def match_deep(input_line: str, pattern: str) -> bool:
             group_start = next_start + 1
 
         pattern_set = pattern[1:pattern_end]
-        this_count = match_group(input_line, pattern_set)
+        this_count = match_count(input_line, pattern_set)
         this_match = this_count > 0
         if len(pattern) > pattern_end + 1:
             if pattern[pattern_end + 1] == "+" and len(input_line) >= this_count:
                 next_match = match_deep(input_line[this_count:], pattern[pattern_end + 2 :])
-                more_count = match_group(input_line[this_count:], pattern_set)
+                more_count = match_count(input_line[this_count:], pattern_set)
                 more_match = more_count > 0
                 return (next_match or more_match) and this_match
             if pattern[pattern_end + 1] == "?":
