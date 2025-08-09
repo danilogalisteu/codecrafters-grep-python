@@ -59,6 +59,25 @@ def match_alpha(input_line: str, pattern: str) -> bool:
     return next_match and this_match
 
 
+def match_negative(input_line: str, pattern: str) -> bool:
+    pattern_end = pattern.find("]")
+    if pattern_end == -1:
+        raise ValueError("invalid pattern")
+    pattern_set = pattern[2:pattern_end]
+    this_match = len(input_line) > 0 and input_line[0] not in pattern_set
+    if len(pattern) > pattern_end + 1:
+        if pattern[pattern_end + 1] == "+" and len(input_line) > 0:
+            next_match = match_deep(input_line[1:], pattern[pattern_end + 2 :])
+            more_match = match_deep(input_line[1:], pattern)
+            return (next_match or more_match) and this_match
+        if pattern[pattern_end + 1] == "?":
+            next_match = len(input_line) > 0 and match_deep(input_line[1:], pattern[pattern_end + 2 :])
+            zero_match = match_deep(input_line, pattern[pattern_end + 2 :])
+            return zero_match or (next_match and this_match)
+    next_match = len(input_line) > 0 and match_deep(input_line[1:], pattern[pattern_end + 1 :])
+    return next_match and this_match
+
+
 def match_deep(input_line: str, pattern: str) -> bool:
     if pattern == "":
         return True
@@ -78,22 +97,7 @@ def match_deep(input_line: str, pattern: str) -> bool:
         return match_alpha(input_line, pattern)
 
     if pattern.startswith("[^"):
-        pattern_end = pattern.find("]")
-        if pattern_end == -1:
-            raise ValueError("invalid pattern")
-        pattern_set = pattern[2:pattern_end]
-        this_match = len(input_line) > 0 and input_line[0] not in pattern_set
-        if len(pattern) > pattern_end + 1:
-            if pattern[pattern_end + 1] == "+" and len(input_line) > 0:
-                next_match = match_deep(input_line[1:], pattern[pattern_end + 2 :])
-                more_match = match_deep(input_line[1:], pattern)
-                return (next_match or more_match) and this_match
-            if pattern[pattern_end + 1] == "?":
-                next_match = len(input_line) > 0 and match_deep(input_line[1:], pattern[pattern_end + 2 :])
-                zero_match = match_deep(input_line, pattern[pattern_end + 2 :])
-                return zero_match or (next_match and this_match)
-        next_match = len(input_line) > 0 and match_deep(input_line[1:], pattern[pattern_end + 1 :])
-        return next_match and this_match
+        return match_negative(input_line, pattern)
 
     if pattern.startswith("["):
         pattern_end = pattern.find("]")
