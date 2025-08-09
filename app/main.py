@@ -97,6 +97,37 @@ def match_positive(input_line: str, pattern: str) -> bool:
     return next_match and this_match
 
 
+def match_group(input_line: str, pattern: str) -> bool:
+    pattern_end = pattern.find(")")
+    if pattern_end == -1:
+        raise ValueError("invalid pattern")
+    group_start = 1
+    while True:
+        next_start = pattern.find("(", group_start, pattern_end)
+        if next_start == -1:
+            break
+        pattern_end = pattern.find(")", pattern_end + 1)
+        if pattern_end == -1:
+            raise ValueError("invalid pattern")
+        group_start = next_start + 1
+
+    pattern_set = pattern[1:pattern_end]
+    this_count = match_count(input_line, pattern_set)
+    this_match = this_count > 0
+    if len(pattern) > pattern_end + 1:
+        if pattern[pattern_end + 1] == "+" and len(input_line) >= this_count:
+            next_match = match_deep(input_line[this_count:], pattern[pattern_end + 2 :])
+            more_count = match_count(input_line[this_count:], pattern_set)
+            more_match = more_count > 0
+            return (next_match or more_match) and this_match
+        if pattern[pattern_end + 1] == "?":
+            next_match = len(input_line) >= this_count and match_deep(input_line[this_count:], pattern[pattern_end + 2 :])
+            zero_match = match_deep(input_line, pattern[pattern_end + 2 :])
+            return zero_match or (next_match and this_match)
+    next_match = len(input_line) >= this_count and match_deep(input_line[this_count:], pattern[pattern_end + 1 :])
+    return next_match and this_match
+
+
 def match_deep(input_line: str, pattern: str) -> bool:
     if pattern == "":
         return True
@@ -122,34 +153,7 @@ def match_deep(input_line: str, pattern: str) -> bool:
         return match_positive(input_line, pattern)
 
     if pattern.startswith("("):
-        pattern_end = pattern.find(")")
-        if pattern_end == -1:
-            raise ValueError("invalid pattern")
-        group_start = 1
-        while True:
-            next_start = pattern.find("(", group_start, pattern_end)
-            if next_start == -1:
-                break
-            pattern_end = pattern.find(")", pattern_end + 1)
-            if pattern_end == -1:
-                raise ValueError("invalid pattern")
-            group_start = next_start + 1
-
-        pattern_set = pattern[1:pattern_end]
-        this_count = match_count(input_line, pattern_set)
-        this_match = this_count > 0
-        if len(pattern) > pattern_end + 1:
-            if pattern[pattern_end + 1] == "+" and len(input_line) >= this_count:
-                next_match = match_deep(input_line[this_count:], pattern[pattern_end + 2 :])
-                more_count = match_count(input_line[this_count:], pattern_set)
-                more_match = more_count > 0
-                return (next_match or more_match) and this_match
-            if pattern[pattern_end + 1] == "?":
-                next_match = len(input_line) >= this_count and match_deep(input_line[this_count:], pattern[pattern_end + 2 :])
-                zero_match = match_deep(input_line, pattern[pattern_end + 2 :])
-                return zero_match or (next_match and this_match)
-        next_match = len(input_line) >= this_count and match_deep(input_line[this_count:], pattern[pattern_end + 1 :])
-        return next_match and this_match
+        return match_group(input_line, pattern)
 
     this_match = len(input_line) > 0 and pattern[0] == input_line[0]
     if len(pattern) > 1:
