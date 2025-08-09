@@ -14,6 +14,21 @@ def match_count(input_line: str, pattern: str) -> int:
     return 0
 
 
+def match_wildcard(input_line: str, pattern: str) -> bool:
+    this_match = True
+    if len(pattern) > 1:
+        if pattern[1] == "+" and len(input_line) > 0:
+            next_match = match_deep(input_line[1:], pattern[2:])
+            more_match = match_deep(input_line[1:], pattern)
+            return (next_match or more_match) and this_match
+        if pattern[1] == "?":
+            next_match = len(input_line) > 0 and match_deep(input_line[1:], pattern[2:])
+            zero_match = match_deep(input_line, pattern[2:])
+            return zero_match or (next_match and this_match)
+    next_match = len(input_line) > 0 and match_deep(input_line[1:], pattern[1:])
+    return next_match and this_match
+
+
 def match_deep(input_line: str, pattern: str) -> bool:
     if pattern == "":
         return True
@@ -24,18 +39,7 @@ def match_deep(input_line: str, pattern: str) -> bool:
         return len(input_line) == 0
 
     if pattern.startswith("."):
-        this_match = True
-        if len(pattern) > 1:
-            if pattern[1] == "+" and len(input_line) > 0:
-                next_match = match_deep(input_line[1:], pattern[2:])
-                more_match = match_deep(input_line[1:], pattern)
-                return (next_match or more_match) and this_match
-            if pattern[1] == "?":
-                next_match = len(input_line) > 0 and match_deep(input_line[1:], pattern[2:])
-                zero_match = match_deep(input_line, pattern[2:])
-                return zero_match or (next_match and this_match)
-        next_match = len(input_line) > 0 and match_deep(input_line[1:], pattern[1:])
-        return next_match and this_match
+        return match_wildcard(input_line, pattern)
 
     if pattern.startswith(r"\d"):
         this_match = len(input_line) > 0 and input_line[0] in string.digits
