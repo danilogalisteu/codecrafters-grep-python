@@ -1,11 +1,33 @@
 import string
 import sys
+from functools import wraps
 from typing import Callable
 
 # import pyparsing - available if you need it!
 # import lark - available if you need it!
+call_level = 0
+show_log = False
+indent = 4
 
 
+def io_decorator(show_log=True, indent=4):
+    def wrapper(fn):
+        @wraps(fn)
+        def io_func(*args, **kwargs):
+            global call_level
+            if show_log:
+                print(f"{' '*call_level}[{int(call_level/4):03d}]E {fn.__name__}({', '.join(f'"{a}"' for a in args)}{', ' + ', '.join('"{k}"="{v}"' for k, v in kwargs.items()) if kwargs else ''})")
+            call_level += indent
+            res = fn(*args, **kwargs)
+            call_level -= indent
+            if show_log:
+                print(f"{' '*call_level}[{int(call_level/4):03d}]X {res} {fn.__name__}({', '.join(f'"{a}"' for a in args)}{', ' + ', '.join('"{k}"="{v}"' for k, v in kwargs.items()) if kwargs else ''})")
+            return res
+        return io_func
+    return wrapper
+
+
+@io_decorator(show_log=show_log, indent=indent)
 def match_count(input_line: str, pattern: str) -> int:
     count = 0
     while count < len(input_line):
@@ -15,6 +37,7 @@ def match_count(input_line: str, pattern: str) -> int:
     return 0
 
 
+@io_decorator(show_log=show_log, indent=indent)
 def match_pattern_single(input_line: str, pattern: str, match_pattern: str, match_fn: Callable[str, bool]) -> bool:
     len_pattern = len(match_pattern)
     this_match = match_fn(input_line)
@@ -31,6 +54,7 @@ def match_pattern_single(input_line: str, pattern: str, match_pattern: str, matc
     return next_match and this_match
 
 
+@io_decorator(show_log=show_log, indent=indent)
 def match_pattern_set(input_line: str, pattern: str, pattern_head: str, pattern_tail: str, match_fn: Callable[[str, str], bool]) -> bool:
     pattern_end = pattern.find(pattern_tail)
     if pattern_end == -1:
@@ -50,6 +74,7 @@ def match_pattern_set(input_line: str, pattern: str, pattern_head: str, pattern_
     return next_match and this_match
 
 
+@io_decorator(show_log=show_log, indent=indent)
 def match_pattern_group(input_line: str, pattern: str, pattern_head: str, pattern_tail: str) -> bool:
     pattern_end = pattern.find(pattern_tail)
     if pattern_end == -1:
@@ -80,6 +105,7 @@ def match_pattern_group(input_line: str, pattern: str, pattern_head: str, patter
     return next_match and this_match
 
 
+@io_decorator(show_log=show_log, indent=indent)
 def match_deep(input_line: str, pattern: str) -> bool:
     if pattern == "":
         return True
