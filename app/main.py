@@ -57,8 +57,10 @@ def match_pattern_single(
             if not this_match:
                 return False
             next_match = match_deep(input_line[1:], pattern[len_pattern + 1 :])
+            if next_match:
+                return True
             more_match = match_deep(input_line[1:], pattern)
-            return next_match or more_match
+            return more_match
         if pattern[len_pattern] == "?":
             zero_match = match_deep(input_line, pattern[len_pattern + 1 :])
             if zero_match:
@@ -97,8 +99,10 @@ def match_pattern_set(
             next_match = match_deep(
                 input_line[1:], pattern[pattern_end + len(pattern_tail) + 1 :]
             )
+            if next_match:
+                return True
             more_match = match_deep(input_line[1:], pattern)
-            return next_match or more_match
+            return more_match
         if pattern[pattern_end + len(pattern_tail)] == "?":
             zero_match = match_deep(
                 input_line, pattern[pattern_end + len(pattern_tail) + 1 :]
@@ -151,9 +155,11 @@ def match_pattern_group(
             next_match = match_deep(
                 input_line[this_count:], pattern[pattern_end + len(pattern_tail) + 1 :]
             )
+            if next_match:
+                return True
             more_count = match_count(input_line[this_count:], pattern_set)
             more_match = more_count > 0
-            return next_match or more_match
+            return more_match
         if pattern[pattern_end + len(pattern_tail)] == "?":
             zero_match = match_deep(
                 input_line, pattern[pattern_end + len(pattern_tail) + 1 :]
