@@ -16,14 +16,20 @@ def io_decorator(show_log=True, indent=4):
         def io_func(*args, **kwargs):
             global call_level
             if show_log:
-                print(f"{' '*call_level}[{int(call_level/4):03d}]E {fn.__name__}({', '.join(f'"{a}"' for a in args)}{', ' + ', '.join('"{k}"="{v}"' for k, v in kwargs.items()) if kwargs else ''})")
+                print(
+                    f"{' ' * call_level}[{int(call_level / 4):03d}]E {fn.__name__}({', '.join(f'"{a}"' for a in args)}{', ' + ', '.join('"{k}"="{v}"' for k, v in kwargs.items()) if kwargs else ''})"
+                )
             call_level += indent
             res = fn(*args, **kwargs)
             call_level -= indent
             if show_log:
-                print(f"{' '*call_level}[{int(call_level/4):03d}]X {res} {fn.__name__}({', '.join(f'"{a}"' for a in args)}{', ' + ', '.join('"{k}"="{v}"' for k, v in kwargs.items()) if kwargs else ''})")
+                print(
+                    f"{' ' * call_level}[{int(call_level / 4):03d}]X {res} {fn.__name__}({', '.join(f'"{a}"' for a in args)}{', ' + ', '.join('"{k}"="{v}"' for k, v in kwargs.items()) if kwargs else ''})"
+                )
             return res
+
         return io_func
+
     return wrapper
 
 
@@ -31,51 +37,79 @@ def io_decorator(show_log=True, indent=4):
 def match_count(input_line: str, pattern: str) -> int:
     count = 0
     while count < len(input_line):
-        if match_deep(input_line[:count+1], pattern):
+        if match_deep(input_line[: count + 1], pattern):
             return count + 1
         count += 1
     return 0
 
 
 @io_decorator(show_log=show_log, indent=indent)
-def match_pattern_single(input_line: str, pattern: str, match_pattern: str, match_fn: Callable[str, bool]) -> bool:
+def match_pattern_single(
+    input_line: str,
+    pattern: str,
+    match_pattern: str,
+    match_fn: Callable[[str], bool],
+) -> bool:
     len_pattern = len(match_pattern)
     this_match = match_fn(input_line)
     if len(pattern) > len_pattern:
         if pattern[len_pattern] == "+" and len(input_line) > 0:
-            next_match = match_deep(input_line[1:], pattern[len_pattern+1:])
+            next_match = match_deep(input_line[1:], pattern[len_pattern + 1 :])
             more_match = match_deep(input_line[1:], pattern)
             return (next_match or more_match) and this_match
         if pattern[len_pattern] == "?":
-            next_match = len(input_line) > 0 and match_deep(input_line[1:], pattern[len_pattern+1:])
-            zero_match = match_deep(input_line, pattern[len_pattern+1:])
+            next_match = len(input_line) > 0 and match_deep(
+                input_line[1:], pattern[len_pattern + 1 :]
+            )
+            zero_match = match_deep(input_line, pattern[len_pattern + 1 :])
             return zero_match or (next_match and this_match)
-    next_match = len(input_line) > 0 and match_deep(input_line[1:], pattern[len_pattern:])
+    next_match = len(input_line) > 0 and match_deep(
+        input_line[1:], pattern[len_pattern:]
+    )
     return next_match and this_match
 
 
 @io_decorator(show_log=show_log, indent=indent)
-def match_pattern_set(input_line: str, pattern: str, pattern_head: str, pattern_tail: str, match_fn: Callable[[str, str], bool]) -> bool:
+def match_pattern_set(
+    input_line: str,
+    pattern: str,
+    pattern_head: str,
+    pattern_tail: str,
+    match_fn: Callable[[str, str], bool],
+) -> bool:
     pattern_end = pattern.find(pattern_tail)
     if pattern_end == -1:
         raise ValueError("invalid pattern")
-    pattern_set = pattern[len(pattern_head):pattern_end]
+    pattern_set = pattern[len(pattern_head) : pattern_end]
     this_match = match_fn(input_line, pattern_set)
     if len(pattern) > pattern_end + len(pattern_tail):
         if pattern[pattern_end + len(pattern_tail)] == "+" and len(input_line) > 0:
-            next_match = match_deep(input_line[1:], pattern[pattern_end + len(pattern_tail) + 1 :])
+            next_match = match_deep(
+                input_line[1:], pattern[pattern_end + len(pattern_tail) + 1 :]
+            )
             more_match = match_deep(input_line[1:], pattern)
             return (next_match or more_match) and this_match
         if pattern[pattern_end + len(pattern_tail)] == "?":
-            next_match = len(input_line) > 0 and match_deep(input_line[1:], pattern[pattern_end + len(pattern_tail) + 1 :])
-            zero_match = match_deep(input_line, pattern[pattern_end + len(pattern_tail) + 1 :])
+            next_match = len(input_line) > 0 and match_deep(
+                input_line[1:], pattern[pattern_end + len(pattern_tail) + 1 :]
+            )
+            zero_match = match_deep(
+                input_line, pattern[pattern_end + len(pattern_tail) + 1 :]
+            )
             return zero_match or (next_match and this_match)
-    next_match = len(input_line) > 0 and match_deep(input_line[1:], pattern[pattern_end + len(pattern_tail) :])
+    next_match = len(input_line) > 0 and match_deep(
+        input_line[1:], pattern[pattern_end + len(pattern_tail) :]
+    )
     return next_match and this_match
 
 
 @io_decorator(show_log=show_log, indent=indent)
-def match_pattern_group(input_line: str, pattern: str, pattern_head: str, pattern_tail: str) -> bool:
+def match_pattern_group(
+    input_line: str,
+    pattern: str,
+    pattern_head: str,
+    pattern_tail: str,
+) -> bool:
     pattern_end = pattern.find(pattern_tail)
     if pattern_end == -1:
         raise ValueError("invalid pattern")
@@ -88,20 +122,31 @@ def match_pattern_group(input_line: str, pattern: str, pattern_head: str, patter
         if pattern_end == -1:
             raise ValueError("invalid pattern")
         group_start = next_start + len(pattern_head)
-    pattern_set = pattern[len(pattern_head):pattern_end]
+    pattern_set = pattern[len(pattern_head) : pattern_end]
     this_count = match_count(input_line, pattern_set)
     this_match = this_count > 0
     if len(pattern) > pattern_end + len(pattern_tail):
-        if pattern[pattern_end + len(pattern_tail)] == "+" and len(input_line) >= this_count:
-            next_match = match_deep(input_line[this_count:], pattern[pattern_end + len(pattern_tail) + 1 :])
+        if (
+            pattern[pattern_end + len(pattern_tail)] == "+"
+            and len(input_line) >= this_count
+        ):
+            next_match = match_deep(
+                input_line[this_count:], pattern[pattern_end + len(pattern_tail) + 1 :]
+            )
             more_count = match_count(input_line[this_count:], pattern_set)
             more_match = more_count > 0
             return (next_match or more_match) and this_match
         if pattern[pattern_end + len(pattern_tail)] == "?":
-            next_match = len(input_line) >= this_count and match_deep(input_line[this_count:], pattern[pattern_end + len(pattern_tail) + 1 :])
-            zero_match = match_deep(input_line, pattern[pattern_end + len(pattern_tail) + 1 :])
+            next_match = len(input_line) >= this_count and match_deep(
+                input_line[this_count:], pattern[pattern_end + len(pattern_tail) + 1 :]
+            )
+            zero_match = match_deep(
+                input_line, pattern[pattern_end + len(pattern_tail) + 1 :]
+            )
             return zero_match or (next_match and this_match)
-    next_match = len(input_line) >= this_count and match_deep(input_line[this_count:], pattern[pattern_end + len(pattern_tail) :])
+    next_match = len(input_line) >= this_count and match_deep(
+        input_line[this_count:], pattern[pattern_end + len(pattern_tail) :]
+    )
     return next_match and this_match
 
 
@@ -119,21 +164,34 @@ def match_deep(input_line: str, pattern: str) -> bool:
         return match_pattern_single(input_line, pattern, ".", lambda i: True)
 
     if pattern.startswith(r"\d"):
-        return match_pattern_single(input_line, pattern, r"\d", lambda i: len(i) > 0 and i[0] in string.digits)
+        return match_pattern_single(
+            input_line, pattern, r"\d", lambda i: len(i) > 0 and i[0] in string.digits
+        )
 
     if pattern.startswith(r"\w"):
-        return match_pattern_single(input_line, pattern, r"\w", lambda i: len(i) > 0 and i[0] in string.digits + string.ascii_letters + "_")
+        return match_pattern_single(
+            input_line,
+            pattern,
+            r"\w",
+            lambda i: len(i) > 0 and i[0] in string.digits + string.ascii_letters + "_",
+        )
 
     if pattern.startswith("[^"):
-        return match_pattern_set(input_line, pattern, "[^", "]", lambda i, p: len(i) > 0 and i[0] not in p)
+        return match_pattern_set(
+            input_line, pattern, "[^", "]", lambda i, p: len(i) > 0 and i[0] not in p
+        )
 
     if pattern.startswith("["):
-        return match_pattern_set(input_line, pattern, "[", "]", lambda i, p: len(i) > 0 and i[0] in p)
+        return match_pattern_set(
+            input_line, pattern, "[", "]", lambda i, p: len(i) > 0 and i[0] in p
+        )
 
     if pattern.startswith("("):
         return match_pattern_group(input_line, pattern, "(", ")")
 
-    return match_pattern_single(input_line, pattern, pattern[0], lambda i: len(i) > 0 and i[0] == pattern[0])
+    return match_pattern_single(
+        input_line, pattern, pattern[0], lambda i: len(i) > 0 and i[0] == pattern[0]
+    )
 
 
 def match_pattern(input_line: str, pattern: str) -> bool:
