@@ -54,19 +54,27 @@ def match_pattern_single(
     this_match = match_fn(input_line)
     if len(pattern) > len_pattern:
         if pattern[len_pattern] == "+" and len(input_line) > 0:
+            if not this_match:
+                return False
             next_match = match_deep(input_line[1:], pattern[len_pattern + 1 :])
             more_match = match_deep(input_line[1:], pattern)
-            return (next_match or more_match) and this_match
+            return next_match or more_match
         if pattern[len_pattern] == "?":
+            zero_match = match_deep(input_line, pattern[len_pattern + 1 :])
+            if zero_match:
+                return True
+            if not this_match:
+                return False
             next_match = len(input_line) > 0 and match_deep(
                 input_line[1:], pattern[len_pattern + 1 :]
             )
-            zero_match = match_deep(input_line, pattern[len_pattern + 1 :])
-            return zero_match or (next_match and this_match)
+            return next_match
+    if not this_match:
+        return False
     next_match = len(input_line) > 0 and match_deep(
         input_line[1:], pattern[len_pattern:]
     )
-    return next_match and this_match
+    return next_match
 
 
 @io_decorator(show_log=show_log, indent=indent)
@@ -84,23 +92,31 @@ def match_pattern_set(
     this_match = match_fn(input_line, pattern_set)
     if len(pattern) > pattern_end + len(pattern_tail):
         if pattern[pattern_end + len(pattern_tail)] == "+" and len(input_line) > 0:
+            if not this_match:
+                return False
             next_match = match_deep(
                 input_line[1:], pattern[pattern_end + len(pattern_tail) + 1 :]
             )
             more_match = match_deep(input_line[1:], pattern)
-            return (next_match or more_match) and this_match
+            return next_match or more_match
         if pattern[pattern_end + len(pattern_tail)] == "?":
-            next_match = len(input_line) > 0 and match_deep(
-                input_line[1:], pattern[pattern_end + len(pattern_tail) + 1 :]
-            )
             zero_match = match_deep(
                 input_line, pattern[pattern_end + len(pattern_tail) + 1 :]
             )
-            return zero_match or (next_match and this_match)
+            if zero_match:
+                return True
+            if not this_match:
+                return False
+            next_match = len(input_line) > 0 and match_deep(
+                input_line[1:], pattern[pattern_end + len(pattern_tail) + 1 :]
+            )
+            return next_match
+    if not this_match:
+        return False
     next_match = len(input_line) > 0 and match_deep(
         input_line[1:], pattern[pattern_end + len(pattern_tail) :]
     )
-    return next_match and this_match
+    return next_match
 
 
 @io_decorator(show_log=show_log, indent=indent)
@@ -130,24 +146,32 @@ def match_pattern_group(
             pattern[pattern_end + len(pattern_tail)] == "+"
             and len(input_line) >= this_count
         ):
+            if not this_match:
+                return False
             next_match = match_deep(
                 input_line[this_count:], pattern[pattern_end + len(pattern_tail) + 1 :]
             )
             more_count = match_count(input_line[this_count:], pattern_set)
             more_match = more_count > 0
-            return (next_match or more_match) and this_match
+            return next_match or more_match
         if pattern[pattern_end + len(pattern_tail)] == "?":
-            next_match = len(input_line) >= this_count and match_deep(
-                input_line[this_count:], pattern[pattern_end + len(pattern_tail) + 1 :]
-            )
             zero_match = match_deep(
                 input_line, pattern[pattern_end + len(pattern_tail) + 1 :]
             )
-            return zero_match or (next_match and this_match)
+            if zero_match:
+                return True
+            if not this_match:
+                return False
+            next_match = len(input_line) >= this_count and match_deep(
+                input_line[this_count:], pattern[pattern_end + len(pattern_tail) + 1 :]
+            )
+            return next_match
+    if not this_match:
+        return False
     next_match = len(input_line) >= this_count and match_deep(
         input_line[this_count:], pattern[pattern_end + len(pattern_tail) :]
     )
-    return next_match and this_match
+    return next_match
 
 
 @io_decorator(show_log=show_log, indent=indent)
