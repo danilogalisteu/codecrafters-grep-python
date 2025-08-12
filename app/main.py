@@ -62,15 +62,14 @@ def match_pattern_single(
             more_match = match_deep(input_line[1:], pattern)
             return more_match
         if pattern[len_pattern] == "?":
+            if this_match:
+                next_match = len(input_line) > 0 and match_deep(
+                    input_line[1:], pattern[len_pattern + 1 :]
+                )
+                if next_match:
+                    return True
             zero_match = match_deep(input_line, pattern[len_pattern + 1 :])
-            if zero_match:
-                return True
-            if not this_match:
-                return False
-            next_match = len(input_line) > 0 and match_deep(
-                input_line[1:], pattern[len_pattern + 1 :]
-            )
-            return next_match
+            return zero_match
     if not this_match:
         return False
     next_match = len(input_line) > 0 and match_deep(
@@ -104,17 +103,16 @@ def match_pattern_set(
             more_match = match_deep(input_line[1:], pattern)
             return more_match
         if pattern[pattern_end + len(pattern_tail)] == "?":
+            if this_match:
+                next_match = len(input_line) > 0 and match_deep(
+                    input_line[1:], pattern[pattern_end + len(pattern_tail) + 1 :]
+                )
+                if next_match:
+                    return True
             zero_match = match_deep(
                 input_line, pattern[pattern_end + len(pattern_tail) + 1 :]
             )
-            if zero_match:
-                return True
-            if not this_match:
-                return False
-            next_match = len(input_line) > 0 and match_deep(
-                input_line[1:], pattern[pattern_end + len(pattern_tail) + 1 :]
-            )
-            return next_match
+            return zero_match
     if not this_match:
         return False
     next_match = len(input_line) > 0 and match_deep(
@@ -161,17 +159,17 @@ def match_pattern_group(
             more_match = more_count > 0
             return more_match
         if pattern[pattern_end + len(pattern_tail)] == "?":
+            if this_match:
+                next_match = len(input_line) >= this_count and match_deep(
+                    input_line[this_count:],
+                    pattern[pattern_end + len(pattern_tail) + 1 :],
+                )
+                if next_match:
+                    return True
             zero_match = match_deep(
                 input_line, pattern[pattern_end + len(pattern_tail) + 1 :]
             )
-            if zero_match:
-                return True
-            if not this_match:
-                return False
-            next_match = len(input_line) >= this_count and match_deep(
-                input_line[this_count:], pattern[pattern_end + len(pattern_tail) + 1 :]
-            )
-            return next_match
+            return zero_match
     if not this_match:
         return False
     next_match = len(input_line) >= this_count and match_deep(
