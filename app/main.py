@@ -11,16 +11,17 @@ def match_here(input_line, pattern):
     if input_line == "":
         return False
     if pattern.startswith(r"\d"):
-        return input_line[0] in string.digits
+        return (input_line[0] in string.digits) and match_here(input_line[1:], pattern[2:])
     if pattern.startswith(r"\w"):
-        return input_line[0] in string.digits + string.ascii_letters + "_"
-    if pattern.startswith(r"[^") and pattern.endswith("]"):
-        return input_line[0] not in pattern[2:-1]
-    if pattern.startswith(r"[") and pattern.endswith("]"):
-        return input_line[0] in pattern[1:-1]
-    if len(pattern) == 1:
-        return pattern in input_line[0]
-    return False
+        return (input_line[0] in string.digits + string.ascii_letters + "_") and match_here(input_line[1:], pattern[2:])
+    if pattern.startswith(r"["):
+        pattern_end = pattern.find("]")
+        if pattern_end == -1:
+            raise ValueError("invalid pattern")
+        if pattern[1] == "^":
+            return (input_line[0] not in pattern[2:pattern_end]) and match_here(input_line[1:], pattern[pattern_end+1:])
+        return (input_line[0] in pattern[1:pattern_end]) and match_here(input_line[1:], pattern[pattern_end+1:])
+    return (input_line[0] == pattern[0]) and match_here(input_line[1:], pattern[1:])
 
 
 def match_pattern(input_line, pattern):
