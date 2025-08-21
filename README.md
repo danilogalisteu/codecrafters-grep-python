@@ -1,4 +1,4 @@
-[![progress-banner](https://backend.codecrafters.io/progress/grep/018cba08-1945-46c5-af78-acb0793d26ec)](https://app.codecrafters.io/users/codecrafters-bot?r=2qF)
+[![progress-banner](https://backend.codecrafters.io/progress/grep/018cba08-1945-46c5-af78-acb0793d26ec)](https://app.codecrafters.io/users/danilogalisteu)
 
 This is a starting point for Python solutions to the
 ["Build Your Own grep" Challenge](https://app.codecrafters.io/courses/grep/overview).
