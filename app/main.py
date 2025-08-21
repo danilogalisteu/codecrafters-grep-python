@@ -25,6 +25,8 @@ def match_here(input_line, pattern):
 
 
 def match_pattern(input_line, pattern):
+    if pattern.startswith("^"):
+        return match_here(input_line, pattern[1:])
     while len(input_line) > 0:
         if match_here(input_line, pattern):
             return True
