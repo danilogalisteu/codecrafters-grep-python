@@ -6,6 +6,10 @@ import sys
 
 
 def match_here(input_line, pattern):
+    if pattern == "":
+        return True
+    if input_line == "":
+        return False
     if pattern.startswith(r"\d"):
         return input_line[0] in string.digits
     if pattern.startswith(r"\w"):
