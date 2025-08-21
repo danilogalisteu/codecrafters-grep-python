@@ -1,13 +1,24 @@
+import string
 import sys
 
 # import pyparsing - available if you need it!
 # import lark - available if you need it!
 
 
-def match_pattern(input_line, pattern):
+def match_here(input_line, pattern):
+    if pattern.startswith(r"\d"):
+        return input_line[0] in string.digits
     if len(pattern) == 1:
-        return pattern in input_line
-    raise RuntimeError(f"Unhandled pattern: {pattern}")
+        return pattern in input_line[0]
+    return False
+
+
+def match_pattern(input_line, pattern):
+    while len(input_line) > 0:
+        if match_here(input_line, pattern):
+            return True
+        input_line = input_line[1:]
+    return False
 
 
 def main():
