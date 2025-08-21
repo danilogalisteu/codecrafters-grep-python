@@ -8,6 +8,8 @@ import sys
 def match_here(input_line, pattern):
     if pattern.startswith(r"\d"):
         return input_line[0] in string.digits
+    if pattern.startswith(r"\w"):
+        return input_line[0] in string.digits + string.ascii_letters + "_"
     if len(pattern) == 1:
         return pattern in input_line[0]
     return False
