@@ -5,14 +5,27 @@ import sys
 # import lark - available if you need it!
 
 
+def match_plus(input_line, pattern, remaining):
+    while len(input_line) > 0 and match_here(input_line[0], pattern):
+        input_next = input_line[1:]
+        if match_here(input_next, remaining):
+            return True
+        input_line = input_next
+    return False
+
+
 def match_here(input_line, pattern):
     if pattern == "":
         return True
     if input_line == "":
         return pattern == "$"
     if pattern.startswith(r"\d"):
+        if len(pattern) > 2 and pattern[2] == "+":
+            return match_plus(input_line, r"\d", pattern[3:])
         return (input_line[0] in string.digits) and match_here(input_line[1:], pattern[2:])
     if pattern.startswith(r"\w"):
+        if len(pattern) > 2 and pattern[2] == "+":
+            return match_plus(input_line, r"\w", pattern[3:])
         return (input_line[0] in string.digits + string.ascii_letters + "_") and match_here(input_line[1:], pattern[2:])
     if pattern.startswith(r"["):
         pattern_end = pattern.find("]")
@@ -21,6 +34,8 @@ def match_here(input_line, pattern):
         if pattern[1] == "^":
             return (input_line[0] not in pattern[2:pattern_end]) and match_here(input_line[1:], pattern[pattern_end+1:])
         return (input_line[0] in pattern[1:pattern_end]) and match_here(input_line[1:], pattern[pattern_end+1:])
+    if len(pattern) > 1 and pattern[1] == "+":
+        return match_plus(input_line, pattern[0], pattern[2:])
     return (input_line[0] == pattern[0]) and match_here(input_line[1:], pattern[1:])
 
 
