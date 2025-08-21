@@ -10,6 +10,8 @@ def match_here(input_line, pattern):
         return input_line[0] in string.digits
     if pattern.startswith(r"\w"):
         return input_line[0] in string.digits + string.ascii_letters + "_"
+    if pattern.startswith(r"[^") and pattern.endswith("]"):
+        return input_line[0] not in pattern[2:-1]
     if pattern.startswith(r"[") and pattern.endswith("]"):
         return input_line[0] in pattern[1:-1]
     if len(pattern) == 1:
