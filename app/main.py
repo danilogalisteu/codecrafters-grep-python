@@ -47,6 +47,13 @@ def match_here(input_line, pattern):
         if pattern[1] == "^":
             return (input_line[0] not in pattern[2:pattern_end]) and match_here(input_line[1:], pattern[pattern_end+1:])
         return (input_line[0] in pattern[1:pattern_end]) and match_here(input_line[1:], pattern[pattern_end+1:])
+    if pattern.startswith("."):
+        if len(pattern) > 1:
+            if pattern[1] == "+":
+                return match_plus(input_line, ".", pattern[2:])
+            if pattern[1] == "?":
+                return match_question(input_line, ".", pattern[2:])
+        return match_here(input_line[1:], pattern[1:])
     if len(pattern) > 1:
         if pattern[1] == "+":
             return match_plus(input_line, pattern[0], pattern[2:])
