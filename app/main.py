@@ -9,7 +9,7 @@ def match_here(input_line, pattern):
     if pattern == "":
         return True
     if input_line == "":
-        return False
+        return pattern == "$"
     if pattern.startswith(r"\d"):
         return (input_line[0] in string.digits) and match_here(input_line[1:], pattern[2:])
     if pattern.startswith(r"\w"):
