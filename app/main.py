@@ -62,8 +62,6 @@ def match_here(input_line, pattern):
                 group_count = 0
                 while any(match_here(input_line, opt*(group_count+1)) for opt in pattern_options):
                     group_count += 1
-                    print(f"OK {group_count} group(s) of '{pattern_options}'")
-                print(f"MATCHED {group_count} group(s) of '{pattern_options}'")
                 if group_count == 0:
                     return False
                 return any(match_here(input_line, opt*(c+1)+remaining) for opt in pattern_options for c in range(group_count))
