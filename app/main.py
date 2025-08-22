@@ -41,6 +41,37 @@ def match_question(input_line, pattern, remaining):
 
 
 def match_here(input_line, pattern):
+    if pattern.startswith("("):
+        pattern_end = pattern.find(")")
+        if pattern_end == -1:
+            raise ValueError("invalid pattern")
+        group_start = 1
+        while True:
+            next_start = pattern.find("(", group_start)
+            if next_start == -1 or next_start > pattern_end:
+                break
+            pattern_end = pattern.find(")", pattern_end+1)
+            if pattern_end == -1:
+                raise ValueError("invalid pattern")
+            group_start = next_start + 1
+        pattern_set = pattern[1:pattern_end]
+        pattern_options = split_pattern(pattern_set)
+        if len(pattern) > pattern_end+1:
+            if pattern[pattern_end+1] == "+":
+                remaining = pattern[pattern_end+2:]
+                group_count = 0
+                while any(match_here(input_line, opt*(group_count+1)) for opt in pattern_options):
+                    group_count += 1
+                    print(f"OK {group_count} group(s) of '{pattern_options}'")
+                print(f"MATCHED {group_count} group(s) of '{pattern_options}'")
+                if group_count == 0:
+                    return False
+                return any(match_here(input_line, opt*(c+1)+remaining) for opt in pattern_options for c in range(group_count))
+            if pattern[pattern_end+1] == "?":
+                remaining = pattern[pattern_end+2:]
+                return any(match_here(input_line, opt+remaining) for opt in pattern_options) or match_here(input_line, remaining)
+        remaining = pattern[pattern_end+1:]
+        return any(match_here(input_line, opt+remaining) for opt in pattern_options)
     if pattern == "":
         return True
     if input_line == "":
