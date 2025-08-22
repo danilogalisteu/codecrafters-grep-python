@@ -35,8 +35,7 @@ def match_plus(input_line, pattern, remaining):
 
 
 def match_question(input_line, pattern, remaining):
-    input_next = input_line[1:]
-    if len(input_line) > 0 and match_here(input_line[0], pattern) and match_here(input_next, remaining):
+    if len(input_line) > 0 and match_here(input_line[0], pattern) and match_here(input_line[1:], remaining):
         return True
     return match_here(input_line, remaining)
 
