@@ -122,6 +122,11 @@ def match_pattern(input_line, pattern):
 
 
 def main():
+    recursive = False
+    if "-r" in sys.argv:
+        recursive = True
+        sys.argv.remove("-r")
+
     if sys.argv[1] != "-E":
         print("Expected first argument to be '-E'")
         exit(1)
@@ -135,9 +140,17 @@ def main():
         exit(1)
 
     success = False
-    multi_files = len(sys.argv[3:]) > 1
-    for input_file in sys.argv[3:]:
-        for input_line in pathlib.Path(input_file).read_text().split("\n"):
+    input_files = [pathlib.Path(input_path) for input_path in sys.argv[3:]]
+    if recursive:
+        input_files = [
+            fn
+            for input_path in input_files
+            for fn in input_path.rglob("*")
+            if fn.is_file()
+        ]
+    multi_files = len(input_files) > 1
+    for input_file in input_files:
+        for input_line in input_file.read_text().split("\n"):
             if match_pattern(input_line, pattern):
                 success = True
                 print((f"{input_file}:" if multi_files else "") + input_line)
