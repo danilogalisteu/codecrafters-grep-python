@@ -134,12 +134,13 @@ def main():
             exit(0)
         exit(1)
 
-    input_lines = pathlib.Path(sys.argv[3]).read_text().split("\n")
     success = False
-    for input_line in input_lines:
-        if match_pattern(input_line, pattern):
-            success = True
-            print(input_line)
+    multi_files = len(sys.argv[3:]) > 1
+    for input_file in sys.argv[3:]:
+        for input_line in pathlib.Path(input_file).read_text().split("\n"):
+            if match_pattern(input_line, pattern):
+                success = True
+                print((f"{input_file}:" if multi_files else "") + input_line)
     exit(0 if success else 1)
 
 
