@@ -97,12 +97,42 @@ def match_here(input_line, pattern):
         if pattern_end == -1:
             raise ValueError("invalid pattern")
         pattern_set = pattern[2:pattern_end]
-        return (input_line[0] not in pattern_set) and match_here(input_line[2:], pattern[pattern_end+1:])
+        if len(pattern) > pattern_end + 1:
+            if pattern[pattern_end + 1] == "+":
+                remaining = pattern[pattern_end+2:]
+                input_match = input_line
+                while len(input_match) > 0 and input_match[0] not in pattern_set:
+                    input_next = input_match[1:]
+                    if match_here(input_next, remaining):
+                        return True
+                    input_match = input_next
+                return False
+            if pattern[pattern_end + 1] == "?":
+                remaining = pattern[pattern_end+2:]
+                if input_line[0] not in pattern_set and match_here(input_line[1:], remaining):
+                    return True
+                return match_here(input_line, remaining)
+        return (input_line[0] not in pattern_set) and match_here(input_line[1:], pattern[pattern_end+1:])
     if pattern.startswith("["):
         pattern_end = pattern.find("]")
         if pattern_end == -1:
             raise ValueError("invalid pattern")
         pattern_set = pattern[1:pattern_end]
+        if len(pattern) > pattern_end + 1:
+            if pattern[pattern_end + 1] == "+":
+                remaining = pattern[pattern_end+2:]
+                input_match = input_line
+                while len(input_match) > 0 and input_match[0] in pattern_set:
+                    input_next = input_match[1:]
+                    if match_here(input_next, remaining):
+                        return True
+                    input_match = input_next
+                return False
+            if pattern[pattern_end + 1] == "?":
+                remaining = pattern[pattern_end+2:]
+                if input_line[0] in pattern_set and match_here(input_line[1:], remaining):
+                    return True
+                return match_here(input_line, remaining)
         return (input_line[0] in pattern_set) and match_here(input_line[1:], pattern[pattern_end+1:])
     if pattern.startswith("."):
         if len(pattern) > 1:
