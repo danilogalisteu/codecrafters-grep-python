@@ -1,3 +1,4 @@
+import pathlib
 import string
 import sys
 
@@ -121,16 +122,25 @@ def match_pattern(input_line, pattern):
 
 
 def main():
-    pattern = sys.argv[2]
-    input_line = sys.stdin.read()
-
     if sys.argv[1] != "-E":
         print("Expected first argument to be '-E'")
         exit(1)
 
-    if match_pattern(input_line, pattern):
-        exit(0)
-    exit(1)
+    pattern = sys.argv[2]
+
+    if len(sys.argv) < 4:
+        input_line = sys.stdin.read()
+        if match_pattern(input_line, pattern):
+            exit(0)
+        exit(1)
+
+    input_lines = pathlib.Path(sys.argv[3]).read_text().split("\n")
+    success = False
+    for input_line in input_lines:
+        if match_pattern(input_line, pattern):
+            success = True
+            print(input_line)
+    exit(0 if success else 1)
 
 
 if __name__ == "__main__":
