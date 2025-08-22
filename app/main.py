@@ -93,13 +93,18 @@ def match_here(input_line, pattern):
             if pattern[2] == "?":
                 return match_question(input_line, r"\w", pattern[3:])
         return (input_line[0] in string.digits + string.ascii_letters + "_") and match_here(input_line[1:], pattern[2:])
+    if pattern.startswith("[^"):
+        pattern_end = pattern.find("]")
+        if pattern_end == -1:
+            raise ValueError("invalid pattern")
+        pattern_set = pattern[2:pattern_end]
+        return (input_line[0] not in pattern_set) and match_here(input_line[2:], pattern[pattern_end+1:])
     if pattern.startswith("["):
         pattern_end = pattern.find("]")
         if pattern_end == -1:
             raise ValueError("invalid pattern")
-        if pattern[1] == "^":
-            return (input_line[0] not in pattern[2:pattern_end]) and match_here(input_line[1:], pattern[pattern_end+1:])
-        return (input_line[0] in pattern[1:pattern_end]) and match_here(input_line[1:], pattern[pattern_end+1:])
+        pattern_set = pattern[1:pattern_end]
+        return (input_line[0] in pattern_set) and match_here(input_line[1:], pattern[pattern_end+1:])
     if pattern.startswith("."):
         if len(pattern) > 1:
             if pattern[1] == "+":
