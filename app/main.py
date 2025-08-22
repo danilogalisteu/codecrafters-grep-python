@@ -5,6 +5,25 @@ import sys
 # import lark - available if you need it!
 
 
+def split_pattern(pattern):
+    splits = []
+    level = 0
+    for i, c in enumerate(pattern):
+        if c == "(":
+            level += 1
+        elif c == ")":
+            level -= 1
+        elif c == "|" and level == 0:
+            splits.append(i)
+    prev = 0
+    parts = []
+    for s in splits:
+        parts.append(pattern[prev:s])
+        prev = s + 1
+    parts.append(pattern[prev:])
+    return parts
+
+
 def match_plus(input_line, pattern, remaining):
     while len(input_line) > 0 and match_here(input_line[0], pattern):
         input_next = input_line[1:]
@@ -40,7 +59,7 @@ def match_here(input_line, pattern):
             if pattern[2] == "?":
                 return match_question(input_line, r"\w", pattern[3:])
         return (input_line[0] in string.digits + string.ascii_letters + "_") and match_here(input_line[1:], pattern[2:])
-    if pattern.startswith(r"["):
+    if pattern.startswith("["):
         pattern_end = pattern.find("]")
         if pattern_end == -1:
             raise ValueError("invalid pattern")
